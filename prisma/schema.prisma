@@ -30,14 +30,13 @@ model Medicine {
   category   Category @relation(fields: [categoryId], references: id)
 
   authorId String
-  @@index([authorId])
 
   orderItems OrderItem[]
   reviews    Review[]
 
+  @@index([authorId])
   @@map("medicines")
 }
-
 
 model Category {
   id          String     @id @default(uuid())
@@ -62,11 +61,11 @@ model Order {
 }
 
 model OrderItem {
-  id         String   @id @default(uuid())
+  id         String  @id @default(uuid())
   orderId    String
   medicineId String
   quantity   Int
-  price      Decimal  @db.Decimal(10, 2)
+  price      Decimal @db.Decimal(10, 2)
 
   order    Order    @relation(fields: [orderId], references: id, onDelete: Cascade)
   medicine Medicine @relation(fields: [medicineId], references: id)
@@ -83,9 +82,10 @@ enum OrderStatus {
   DELIVERED
   CANCELLED
 }
+
 model Review {
   id         String   @id @default(uuid())
-  rating     Int      // 1–5
+  rating     Int // 1–5
   comment    String?
   userId     String
   medicineId String
@@ -95,11 +95,11 @@ model Review {
   user     User     @relation(fields: [userId], references: id, onDelete: Cascade)
   medicine Medicine @relation(fields: [medicineId], references: id, onDelete: Cascade)
 
-  @@unique([userId, medicineId]) // one review per user per medicine
+  // one review per user per medicine
+  @@unique([userId, medicineId])
   @@index([medicineId])
   @@map("reviews")
 }
-
 
 model User {
   id            String    @id
