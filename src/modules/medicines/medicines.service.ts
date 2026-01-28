@@ -1,7 +1,9 @@
 import { Medicine } from "../../../generated/prisma/client";
 import { MedicineWhereInput } from "../../../generated/prisma/models";
 import { prisma } from "../../lib/prisma";
+import { UserRole } from "../../middlewares/auth";
 
+//Private Routes --- Admin/Seller routes
 const createMedicine = async (
   data: Omit<
     Medicine,
@@ -26,6 +28,35 @@ const createMedicine = async (
     },
   });
 
+  return result;
+};
+
+const updateMedicine = async (
+  medicineId: string,
+  data: Partial<Medicine>,
+  authorId: string,
+  isAuthorized: boolean,
+) => {
+  const medicineData = await prisma.medicine.findUniqueOrThrow({
+    where: {
+      id: medicineId,
+    },
+    select: {
+      id: true,
+      authorId: true,
+    },
+  });
+
+  if (!isAuthorized && medicineData.authorId !== authorId) {
+    throw new Error("You are not the owner/creator of the post!");
+  }
+
+  const result = await prisma.medicine.update({
+    where: {
+      id: medicineData.id,
+    },
+    data,
+  });
   return result;
 };
 
@@ -206,4 +237,5 @@ export const medicineService = {
   createMedicine,
   getAllMedicines,
   getMedicineById,
+  updateMedicine,
 };

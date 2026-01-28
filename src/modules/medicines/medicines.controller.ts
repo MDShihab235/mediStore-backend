@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { medicineService } from "./medicines.service";
 import paginationSortingHelper from "../../helpers/paginationSortingHelpers";
+import { UserRole } from "../../middlewares/auth";
 
 const createMedicine = async (
   req: Request,
@@ -96,8 +97,34 @@ const getMedicineById = async (
   }
 };
 
+const updateMedicine = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const user = req.user;
+    if (!user) {
+      throw new Error("You are unauthorized!");
+    }
+    const { medicineId } = req.params;
+    const isAuthorized =
+      user.role === UserRole.ADMIN || user.role === UserRole.SELLER;
+    const result = await medicineService.updateMedicine(
+      medicineId as string,
+      req.body,
+      user.id,
+      isAuthorized,
+    );
+    res.status(200).json(result);
+  } catch (e) {
+    next(e);
+  }
+};
+
 export const medicineController = {
   createMedicine,
   getAllMedicines,
   getMedicineById,
+  updateMedicine,
 };

@@ -6,11 +6,17 @@ const router = express.Router();
 
 router.post(
   "/",
-  auth(UserRole.ADMIN, UserRole.CUSTOMER, UserRole.SELLER),
+  auth(UserRole.ADMIN, UserRole.SELLER),
   medicineController.createMedicine,
 );
 
 router.get("/", medicineController.getAllMedicines);
 router.get("/:medicineId", medicineController.getMedicineById);
+
+router.put(
+  "/:medicineId",
+  auth(UserRole.SELLER, UserRole.ADMIN),
+  medicineController.updateMedicine,
+);
 
 export const medicineRouter = router;
