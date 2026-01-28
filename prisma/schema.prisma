@@ -28,7 +28,16 @@ model Medicine {
   // Relations
   categoryId String
   category   Category @relation(fields: [categoryId], references: id)
+
+  authorId String
+  @@index([authorId])
+
+  orderItems OrderItem[]
+  reviews    Review[]
+
+  @@map("medicines")
 }
+
 
 model Category {
   id          String     @id @default(uuid())
@@ -36,6 +45,61 @@ model Category {
   description String?
   medicines   Medicine[]
 }
+
+model Order {
+  id          String      @id @default(uuid())
+  userId      String
+  user        User        @relation(fields: [userId], references: id)
+  status      OrderStatus @default(PENDING)
+  totalAmount Decimal     @db.Decimal(10, 2)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  items OrderItem[]
+
+  @@index([userId])
+  @@map("orders")
+}
+
+model OrderItem {
+  id         String   @id @default(uuid())
+  orderId    String
+  medicineId String
+  quantity   Int
+  price      Decimal  @db.Decimal(10, 2)
+
+  order    Order    @relation(fields: [orderId], references: id, onDelete: Cascade)
+  medicine Medicine @relation(fields: [medicineId], references: id)
+
+  @@index([orderId])
+  @@index([medicineId])
+  @@map("order_items")
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+model Review {
+  id         String   @id @default(uuid())
+  rating     Int      // 1–5
+  comment    String?
+  userId     String
+  medicineId String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user     User     @relation(fields: [userId], references: id, onDelete: Cascade)
+  medicine Medicine @relation(fields: [medicineId], references: id, onDelete: Cascade)
+
+  @@unique([userId, medicineId]) // one review per user per medicine
+  @@index([medicineId])
+  @@map("reviews")
+}
+
 
 model User {
   id            String    @id
@@ -47,6 +111,8 @@ model User {
   updatedAt     DateTime  @updatedAt
   sessions      Session[]
   accounts      Account[]
+  reviews       Review[]
+  orders        Order[]
 
   role   String? @default("CUSTOMER")
   phone  String?
