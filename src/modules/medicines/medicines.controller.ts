@@ -122,9 +122,34 @@ const updateMedicine = async (
   }
 };
 
+const deleteMedicine = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const user = req.user;
+    if (!user) {
+      throw new Error("You are unauthorized!");
+    }
+    const { medicineId } = req.params;
+    const isAuthorized =
+      user.role === UserRole.ADMIN || user.role === UserRole.SELLER;
+    const result = await medicineService.deleteMedicine(
+      medicineId as string,
+      user.id,
+      isAuthorized,
+    );
+    res.status(200).json(result);
+  } catch (err) {
+    next(err);
+  }
+};
+
 export const medicineController = {
   createMedicine,
   getAllMedicines,
   getMedicineById,
   updateMedicine,
+  deleteMedicine,
 };

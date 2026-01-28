@@ -60,6 +60,30 @@ const updateMedicine = async (
   return result;
 };
 
+const deleteMedicine = async (
+  medicineId: string,
+  authorId: string,
+  isAuthorized: boolean,
+) => {
+  const medicineData = await prisma.medicine.findUniqueOrThrow({
+    where: {
+      id: medicineId,
+    },
+    select: {
+      id: true,
+      authorId: true,
+    },
+  });
+  if (!isAuthorized && medicineData.authorId !== authorId) {
+    throw new Error("You are not the owner/creator of the post!");
+  }
+  return await prisma.medicine.delete({
+    where: {
+      id: medicineId,
+    },
+  });
+};
+
 //Customer public routes
 const getAllMedicines = async ({
   search,
@@ -238,4 +262,5 @@ export const medicineService = {
   getAllMedicines,
   getMedicineById,
   updateMedicine,
+  deleteMedicine,
 };
