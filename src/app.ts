@@ -4,6 +4,8 @@ import cors from "cors";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/auth";
 import { medicineRouter } from "./modules/medicines/medicines.routes";
+import { notFound } from "./middlewares/notFound";
+import errorHandler from "./middlewares/globalErrorHandler";
 
 const app = express();
 
@@ -24,5 +26,8 @@ app.use("/api/medicines", medicineRouter);
 app.get("/", (req, res) => {
   res.send("This is Medi Store backend");
 });
+
+app.use(notFound);
+app.use(errorHandler);
 
 export default app;

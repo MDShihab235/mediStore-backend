@@ -10,4 +10,7 @@ router.post(
   medicineController.createMedicine,
 );
 
+router.get("/", medicineController.getAllMedicines);
+router.get("/:medicineId", medicineController.getMedicineById);
+
 export const medicineRouter = router;

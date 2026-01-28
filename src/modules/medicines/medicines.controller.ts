@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { medicineService } from "./medicines.service";
+import paginationSortingHelper from "../../helpers/paginationSortingHelpers";
 
 const createMedicine = async (
   req: Request,
@@ -23,6 +24,80 @@ const createMedicine = async (
   }
 };
 
+const getAllMedicines = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { search, category, manufacturer, minPrice, maxPrice } = req.query;
+
+    const searchString = typeof search === "string" ? search : undefined;
+
+    const categoryString = typeof category === "string" ? category : undefined;
+
+    const manufacturerString =
+      typeof manufacturer === "string" ? manufacturer : undefined;
+
+    const minPriceNumber =
+      typeof minPrice === "string" ? Number(minPrice) : undefined;
+
+    const maxPriceNumber =
+      typeof maxPrice === "string" ? Number(maxPrice) : undefined;
+
+    const authorId =
+      typeof req.query.authorId === "string" ? req.query.authorId : undefined;
+
+    const { page, limit, skip, sortBy, sortOrder } = paginationSortingHelper(
+      req.query,
+    );
+
+    const result = await medicineService.getAllMedicines({
+      search: searchString,
+      category: categoryString,
+      manufacturer: manufacturerString,
+      minPrice: minPriceNumber,
+      maxPrice: maxPriceNumber,
+      authorId,
+      page,
+      limit,
+      skip,
+      sortBy,
+      sortOrder,
+    });
+
+    res.status(200).json({
+      success: true,
+      data: result.data,
+      pagination: result.pagination,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const getMedicineById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { medicineId } = req.params;
+    if (!medicineId || typeof medicineId !== "string") {
+      throw new Error("Medicine Id is required!!!");
+    }
+    const result = await medicineService.getMedicineById(medicineId);
+    res.status(200).json({
+      success: true,
+      result,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 export const medicineController = {
   createMedicine,
+  getAllMedicines,
+  getMedicineById,
 };
