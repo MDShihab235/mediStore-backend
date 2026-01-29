@@ -9,8 +9,8 @@
     // See also https://aka.ms/tsconfig/module
     "module": "ESNext",
     "moduleResolution": "node",
-    "target": "ES2023",
-    "types": ["node"],
+    "target": "es2023",
+    "types": [],
     // For nodejs:
     // "lib": ["esnext"],
     // "types": ["node"],
