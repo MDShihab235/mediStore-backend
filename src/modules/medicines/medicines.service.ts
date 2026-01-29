@@ -1,7 +1,6 @@
 import { Medicine } from "../../../generated/prisma/client";
 import { MedicineWhereInput } from "../../../generated/prisma/models";
 import { prisma } from "../../lib/prisma";
-import { UserRole } from "../../middlewares/auth";
 
 //Private Routes --- Admin/Seller routes
 const createMedicine = async (
@@ -112,7 +111,6 @@ const getAllMedicines = async ({
 }) => {
   const andConditions: MedicineWhereInput[] = [];
 
-  /* 🔍 Search (name, manufacturer, category) */
   if (search) {
     andConditions.push({
       OR: [
@@ -142,7 +140,6 @@ const getAllMedicines = async ({
     });
   }
 
-  /* 🧾 Category filter */
   if (category) {
     andConditions.push({
       category: {
@@ -156,7 +153,6 @@ const getAllMedicines = async ({
     });
   }
 
-  /* 🏭 Manufacturer filter */
   if (manufacturer) {
     andConditions.push({
       manufacturer: {
@@ -166,7 +162,6 @@ const getAllMedicines = async ({
     });
   }
 
-  /* 💰 Price range filter */
   if (minPrice !== undefined || maxPrice !== undefined) {
     const priceFilter: any = {};
     if (minPrice !== undefined) priceFilter.gte = minPrice;
@@ -176,7 +171,6 @@ const getAllMedicines = async ({
     });
   }
 
-  /* 👤 Author (seller) filter */
   if (authorId) {
     andConditions.push({ authorId });
   }
@@ -257,10 +251,26 @@ const getMedicineById = async (medicineId: string) => {
   return medicine;
 };
 
+const getAllCategories = async () => {
+  const result = await prisma.category.findMany({
+    select: {
+      id: true,
+      name: true,
+      _count: {
+        select: {
+          medicines: true,
+        },
+      },
+    },
+  });
+  return result;
+};
+
 export const medicineService = {
   createMedicine,
   getAllMedicines,
   getMedicineById,
   updateMedicine,
   deleteMedicine,
+  getAllCategories,
 };

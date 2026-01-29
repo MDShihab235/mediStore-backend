@@ -7,6 +7,7 @@ const router = express.Router();
 //Public routes
 router.get("/", medicineController.getAllMedicines);
 router.get("/:medicineId", medicineController.getMedicineById);
+router.get("/categories/all", medicineController.getAllCategories);
 
 //Private Routes
 router.post(

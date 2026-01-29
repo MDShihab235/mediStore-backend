@@ -43,6 +43,7 @@ model Category {
   name        String     @unique
   description String?
   medicines   Medicine[]
+  @@map("categories")
 }
 
 model Order {
