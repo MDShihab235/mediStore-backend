@@ -6,8 +6,9 @@ const router = Router();
 
 router.post("/", auth(UserRole.SELLER), orderController.createOrder);
 router.get("/:userId", auth(UserRole.SELLER), orderController.getUsersOrder);
+
 router.get(
-  "/single/:orderId",
+  "/order/:id",
   auth(UserRole.SELLER),
   orderController.getSingleOrderDetails,
 );
