@@ -4,10 +4,6 @@ import auth, { UserRole } from "../../middlewares/auth";
 
 const router = Router();
 
-router.get(
-  "/",
-  auth(UserRole.SELLER, UserRole.ADMIN),
-  usersController.getAllUsers,
-);
-router.get("/:id", usersController.getUser);
+router.get("/", auth(UserRole.ADMIN), usersController.getAllUsers);
+router.get("/:id", auth(UserRole.ADMIN), usersController.getUser);
 export const usersRouter = router;
