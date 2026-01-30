@@ -82,8 +82,45 @@ const getSingleOrderDetails = async (
     next(err);
   }
 };
+
+export const getSellerOrders = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const sellerId = req.user?.id;
+    const role = req.user?.role;
+
+    if (!sellerId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+
+    // Optional but recommended
+    if (role !== "SELLER") {
+      return res.status(403).json({
+        success: false,
+        message: "Access denied. Seller only.",
+      });
+    }
+
+    const orders = await orderService.getSellerOrders(sellerId);
+
+    res.status(200).json({
+      success: true,
+      message: "Seller orders fetched successfully",
+      data: orders,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
 export const orderController = {
   createOrder,
   getUsersOrder,
   getSingleOrderDetails,
+  getSellerOrders,
 };

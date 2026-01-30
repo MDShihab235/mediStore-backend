@@ -12,5 +12,9 @@ router.get(
   auth(UserRole.SELLER),
   orderController.getSingleOrderDetails,
 );
-
+router.get(
+  "/seller/orders",
+  auth(UserRole.SELLER),
+  orderController.getSellerOrders,
+);
 export const ordersRouter = router;

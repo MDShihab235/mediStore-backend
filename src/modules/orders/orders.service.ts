@@ -135,8 +135,59 @@ const getSingleOrderDetails = async (orderId: string, userId: string) => {
 
   return order;
 };
+
+const getSellerOrders = async (sellerId: string) => {
+  if (!sellerId) {
+    throw new Error("Seller ID is required");
+  }
+
+  const orders = await prisma.order.findMany({
+    where: {
+      items: {
+        some: {
+          medicine: {
+            authorId: sellerId, // seller owns the medicine
+          },
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    include: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          phone: true,
+        },
+      },
+      items: {
+        where: {
+          medicine: {
+            authorId: sellerId, // ONLY seller's items
+          },
+        },
+        include: {
+          medicine: {
+            select: {
+              id: true,
+              name: true,
+              price: true,
+              imageUrl: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  return orders;
+};
 export const orderService = {
   createOrder,
   getUsersOrder,
   getSingleOrderDetails,
+  getSellerOrders,
 };
