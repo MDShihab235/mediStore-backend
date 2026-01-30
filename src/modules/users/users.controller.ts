@@ -15,6 +15,23 @@ const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
+const getUser = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { id: userId } = req.params;
+
+    const user = await usersService.getUser(userId as string);
+
+    res.status(200).json({
+      success: true,
+      message: "User fetched successfully",
+      data: user,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 export const usersController = {
   getAllUsers,
+  getUser,
 };

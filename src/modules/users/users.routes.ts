@@ -9,5 +9,5 @@ router.get(
   auth(UserRole.SELLER, UserRole.ADMIN),
   usersController.getAllUsers,
 );
-
+router.get("/:id", usersController.getUser);
 export const usersRouter = router;

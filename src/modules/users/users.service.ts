@@ -10,10 +10,17 @@ const getAllUsers = async () => {
   return users;
 };
 
-// const getUser = async()=>{
+const getUser = async (userId: string) => {
+  const user = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+  });
 
-// }
+  return user;
+};
 
 export const usersService = {
   getAllUsers,
+  getUser,
 };
