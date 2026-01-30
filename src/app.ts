@@ -7,6 +7,7 @@ import { medicineRouter } from "./modules/medicines/medicines.routes";
 import { notFound } from "./middlewares/notFound";
 import errorHandler from "./middlewares/globalErrorHandler";
 import { ordersRouter } from "./modules/orders/orders.routes";
+import { usersRouter } from "./modules/users/users.routes";
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.use(express.json());
 // Adding Routes
 app.use("/api/medicines", medicineRouter);
 app.use("/api/orders", ordersRouter);
+app.use("/api/users", usersRouter);
 
 app.get("/", (req, res) => {
   res.send("This is Medi Store backend");
