@@ -259,6 +259,22 @@ var auth = betterAuth({
     provider: "postgresql"
     // or "mysql", "postgresql", ...etc
   }),
+  session: {
+    cookieCache: {
+      enabled: true,
+      maxAge: 5 * 60
+      // 5 minutes
+    }
+  },
+  advanced: {
+    cookiePrefix: "better-auth",
+    useSecureCookies: process.env.NODE_ENV === "production",
+    crossSubDomainCookies: {
+      enabled: false
+    },
+    disableCSRFCheck: true
+    // Allow requests without Origin header (Postman, mobile apps, etc.)
+  },
   user: {
     additionalFields: {
       role: {
@@ -1119,8 +1135,16 @@ var orderController = {
 
 // src/modules/orders/orders.routes.ts
 var router2 = Router();
-router2.post("/", orderController.createOrder);
-router2.get("/:userId", orderController.getUsersOrder);
+router2.post(
+  "/",
+  auth_default("CUSTOMER" /* CUSTOMER */, "SELLER" /* SELLER */, "ADMIN" /* ADMIN */),
+  orderController.createOrder
+);
+router2.get(
+  "/:userId",
+  auth_default("CUSTOMER" /* CUSTOMER */, "SELLER" /* SELLER */, "ADMIN" /* ADMIN */),
+  orderController.getUsersOrder
+);
 router2.get(
   "/order/:id",
   auth_default("SELLER" /* SELLER */, "ADMIN" /* ADMIN */),
@@ -1197,14 +1221,33 @@ var usersRouter = router3;
 
 // src/app.ts
 var app = express2();
+var allowedOrigins = [
+  process.env.APP_URL || "http://localhost:4000",
+  process.env.PROD_APP_URL,
+  // Production frontend URL
+  "http://localhost:3000",
+  "http://localhost:4000",
+  "http://localhost:5000"
+].filter(Boolean);
 app.use(
   cors({
-    origin: process.env.APP_URL || "http://localhost:3000",
-    credentials: true
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      const isAllowed = allowedOrigins.includes(origin) || /^https:\/\/next-blog-client.*\.vercel\.app$/.test(origin) || /^https:\/\/.*\.vercel\.app$/.test(origin);
+      if (isAllowed) {
+        callback(null, true);
+      } else {
+        callback(new Error(`Origin ${origin} not allowed by CORS`));
+      }
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
+    exposedHeaders: ["Set-Cookie"]
   })
 );
-app.all("/api/auth/*splat", toNodeHandler(auth));
 app.use(express2.json());
+app.all("/api/auth/*splat", toNodeHandler(auth));
 app.use("/api/medicines", medicineRouter);
 app.use("/api/orders", ordersRouter);
 app.use("/api/users", usersRouter);

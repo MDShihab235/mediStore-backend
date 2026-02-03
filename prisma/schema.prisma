@@ -102,6 +102,11 @@ model Review {
   @@map("reviews")
 }
 
+enum UserStatus {
+  ACTIVE
+  BANNED
+}
+
 model User {
   id            String    @id
   name          String

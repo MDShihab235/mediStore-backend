@@ -1,4 +1,5 @@
 import { prisma } from "../../lib/prisma";
+import { UserRole } from "../../middlewares/auth";
 
 const getAllUsers = async () => {
   const users = await prisma.user.findMany({
@@ -20,7 +21,26 @@ const getUser = async (userId: string) => {
   return user;
 };
 
+const updateUserStatus = async (
+  userId: string,
+  status: "ACTIVE" | "BANNED",
+) => {
+  return prisma.user.update({
+    where: { id: userId },
+    data: { status },
+  });
+};
+
+const updateUserRole = async (userId: string, role: UserRole) => {
+  return prisma.user.update({
+    where: { id: userId },
+    data: { role },
+  });
+};
+
 export const usersService = {
   getAllUsers,
   getUser,
+  updateUserStatus,
+  updateUserRole,
 };
