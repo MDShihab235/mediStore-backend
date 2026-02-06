@@ -23,6 +23,12 @@ export const auth = betterAuth({
       enabled: true,
       maxAge: 5 * 60, // 5 minutes
     },
+    cookie: {
+      secure: true,
+      sameSite: "none",
+      httpOnly: true,
+      path: "/",
+    },
   },
   advanced: {
     cookiePrefix: "better-auth",
