@@ -83,7 +83,6 @@ const deleteMedicine = async (
   });
 };
 
-//Customer public routes
 const getAllMedicines = async ({
   search,
   category,

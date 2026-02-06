@@ -12,14 +12,10 @@ router.get("/categories/all", medicineController.getAllCategories);
 //Private Routes
 router.post(
   "/",
-  auth(UserRole.ADMIN, UserRole.SELLER),
+  auth(UserRole.SELLER, UserRole.ADMIN),
   medicineController.createMedicine,
 );
-router.put(
-  "/:medicineId",
-  auth(UserRole.SELLER, UserRole.ADMIN),
-  medicineController.updateMedicine,
-);
+router.put("/:medicineId", medicineController.updateMedicine);
 router.delete(
   "/:medicineId",
   auth(UserRole.SELLER, UserRole.ADMIN),

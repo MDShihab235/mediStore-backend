@@ -28,7 +28,7 @@ var config = {
   "clientVersion": "7.3.0",
   "engineVersion": "9d6ad21cbbceab97458517b147a6a09ff43aa735",
   "activeProvider": "postgresql",
-  "inlineSchema": '// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider = "prisma-client"\n  output   = "../generated/prisma"\n}\n\ndatasource db {\n  provider = "postgresql"\n}\n\nmodel Medicine {\n  id           String   @id @default(uuid())\n  name         String\n  manufacturer String\n  description  String\n  price        Decimal  @db.Decimal(10, 2)\n  stock        Int      @default(0)\n  imageUrl     String?\n  expiryDate   DateTime\n  createdAt    DateTime @default(now())\n  updatedAt    DateTime @updatedAt\n\n  // Relations\n  categoryId String\n  category   Category @relation(fields: [categoryId], references: id)\n\n  authorId String\n\n  orderItems OrderItem[]\n  reviews    Review[]\n\n  @@index([authorId])\n  @@map("medicines")\n}\n\nmodel Category {\n  id          String     @id @default(uuid())\n  name        String     @unique\n  description String?\n  medicines   Medicine[]\n\n  @@map("categories")\n}\n\nmodel Order {\n  id          String      @id @default(uuid())\n  userId      String\n  user        User        @relation(fields: [userId], references: id)\n  status      OrderStatus @default(PENDING)\n  totalAmount Decimal     @db.Decimal(10, 2)\n  createdAt   DateTime    @default(now())\n  updatedAt   DateTime    @updatedAt\n\n  items OrderItem[]\n\n  @@index([userId])\n  @@map("orders")\n}\n\nmodel OrderItem {\n  id         String  @id @default(uuid())\n  orderId    String\n  medicineId String\n  quantity   Int\n  price      Decimal @db.Decimal(10, 2)\n\n  order    Order    @relation(fields: [orderId], references: id, onDelete: Cascade)\n  medicine Medicine @relation(fields: [medicineId], references: id)\n\n  @@index([orderId])\n  @@index([medicineId])\n  @@map("order_items")\n}\n\nenum OrderStatus {\n  PENDING\n  PAID\n  SHIPPED\n  DELIVERED\n  CANCELLED\n}\n\nmodel Review {\n  id         String   @id @default(uuid())\n  rating     Int // 1\u20135\n  comment    String?\n  userId     String\n  medicineId String\n  createdAt  DateTime @default(now())\n  updatedAt  DateTime @updatedAt\n\n  user     User     @relation(fields: [userId], references: id, onDelete: Cascade)\n  medicine Medicine @relation(fields: [medicineId], references: id, onDelete: Cascade)\n\n  // one review per user per medicine\n  @@unique([userId, medicineId])\n  @@index([medicineId])\n  @@map("reviews")\n}\n\nmodel User {\n  id            String    @id\n  name          String\n  email         String\n  emailVerified Boolean   @default(false)\n  image         String?\n  createdAt     DateTime  @default(now())\n  updatedAt     DateTime  @updatedAt\n  sessions      Session[]\n  accounts      Account[]\n  reviews       Review[]\n  orders        Order[]\n\n  role   String? @default("CUSTOMER")\n  phone  String?\n  status String? @default("ACTIVE")\n\n  @@unique([email])\n  @@map("user")\n}\n\nmodel Session {\n  id        String   @id\n  expiresAt DateTime\n  token     String\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n  ipAddress String?\n  userAgent String?\n  userId    String\n  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  @@unique([token])\n  @@index([userId])\n  @@map("session")\n}\n\nmodel Account {\n  id                    String    @id\n  accountId             String\n  providerId            String\n  userId                String\n  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)\n  accessToken           String?\n  refreshToken          String?\n  idToken               String?\n  accessTokenExpiresAt  DateTime?\n  refreshTokenExpiresAt DateTime?\n  scope                 String?\n  password              String?\n  createdAt             DateTime  @default(now())\n  updatedAt             DateTime  @updatedAt\n\n  @@index([userId])\n  @@map("account")\n}\n\nmodel Verification {\n  id         String   @id\n  identifier String\n  value      String\n  expiresAt  DateTime\n  createdAt  DateTime @default(now())\n  updatedAt  DateTime @updatedAt\n\n  @@index([identifier])\n  @@map("verification")\n}\n',
+  "inlineSchema": '// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider = "prisma-client"\n  output   = "../generated/prisma"\n}\n\ndatasource db {\n  provider = "postgresql"\n}\n\nmodel Medicine {\n  id           String   @id @default(uuid())\n  name         String\n  manufacturer String\n  description  String\n  price        Decimal  @db.Decimal(10, 2)\n  stock        Int      @default(0)\n  imageUrl     String?\n  expiryDate   DateTime\n  createdAt    DateTime @default(now())\n  updatedAt    DateTime @updatedAt\n\n  // Relations\n  categoryId String\n  category   Category @relation(fields: [categoryId], references: id)\n\n  authorId String\n\n  orderItems OrderItem[]\n  reviews    Review[]\n\n  @@index([authorId])\n  @@map("medicines")\n}\n\nmodel Category {\n  id          String     @id @default(uuid())\n  name        String     @unique\n  description String?\n  medicines   Medicine[]\n\n  @@map("categories")\n}\n\nmodel Order {\n  id          String      @id @default(uuid())\n  userId      String\n  user        User        @relation(fields: [userId], references: id)\n  status      OrderStatus @default(PENDING)\n  totalAmount Decimal     @db.Decimal(10, 2)\n  createdAt   DateTime    @default(now())\n  updatedAt   DateTime    @updatedAt\n\n  items OrderItem[]\n\n  @@index([userId])\n  @@map("orders")\n}\n\nmodel OrderItem {\n  id         String  @id @default(uuid())\n  orderId    String\n  medicineId String\n  quantity   Int\n  price      Decimal @db.Decimal(10, 2)\n\n  order    Order    @relation(fields: [orderId], references: id, onDelete: Cascade)\n  medicine Medicine @relation(fields: [medicineId], references: id)\n\n  @@index([orderId])\n  @@index([medicineId])\n  @@map("order_items")\n}\n\nenum OrderStatus {\n  PENDING\n  PAID\n  SHIPPED\n  DELIVERED\n  CANCELLED\n}\n\nmodel Review {\n  id         String   @id @default(uuid())\n  rating     Int // 1\u20135\n  comment    String?\n  userId     String\n  medicineId String\n  createdAt  DateTime @default(now())\n  updatedAt  DateTime @updatedAt\n\n  user     User     @relation(fields: [userId], references: id, onDelete: Cascade)\n  medicine Medicine @relation(fields: [medicineId], references: id, onDelete: Cascade)\n\n  // one review per user per medicine\n  @@unique([userId, medicineId])\n  @@index([medicineId])\n  @@map("reviews")\n}\n\nenum UserStatus {\n  ACTIVE\n  BANNED\n}\n\nmodel User {\n  id            String    @id\n  name          String\n  email         String\n  emailVerified Boolean   @default(false)\n  image         String?\n  createdAt     DateTime  @default(now())\n  updatedAt     DateTime  @updatedAt\n  sessions      Session[]\n  accounts      Account[]\n  reviews       Review[]\n  orders        Order[]\n\n  role   String? @default("CUSTOMER")\n  phone  String?\n  status String? @default("ACTIVE")\n\n  @@unique([email])\n  @@map("user")\n}\n\nmodel Session {\n  id        String   @id\n  expiresAt DateTime\n  token     String\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n  ipAddress String?\n  userAgent String?\n  userId    String\n  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  @@unique([token])\n  @@index([userId])\n  @@map("session")\n}\n\nmodel Account {\n  id                    String    @id\n  accountId             String\n  providerId            String\n  userId                String\n  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)\n  accessToken           String?\n  refreshToken          String?\n  idToken               String?\n  accessTokenExpiresAt  DateTime?\n  refreshTokenExpiresAt DateTime?\n  scope                 String?\n  password              String?\n  createdAt             DateTime  @default(now())\n  updatedAt             DateTime  @updatedAt\n\n  @@index([userId])\n  @@map("account")\n}\n\nmodel Verification {\n  id         String   @id\n  identifier String\n  value      String\n  expiresAt  DateTime\n  createdAt  DateTime @default(now())\n  updatedAt  DateTime @updatedAt\n\n  @@index([identifier])\n  @@map("verification")\n}\n',
   "runtimeDataModel": {
     "models": {},
     "enums": {},
@@ -1177,9 +1177,23 @@ var getUser = async (userId) => {
   });
   return user;
 };
+var updateUserStatus = async (userId, status) => {
+  return prisma.user.update({
+    where: { id: userId },
+    data: { status }
+  });
+};
+var updateUserRole = async (userId, role) => {
+  return prisma.user.update({
+    where: { id: userId },
+    data: { role }
+  });
+};
 var usersService = {
   getAllUsers,
-  getUser
+  getUser,
+  updateUserStatus,
+  updateUserRole
 };
 
 // src/modules/users/users.controller.ts
@@ -1208,15 +1222,45 @@ var getUser2 = async (req, res, next) => {
     next(err);
   }
 };
+var banOrUnbanUser = async (req, res, next) => {
+  try {
+    const { userId } = req.params;
+    const { status } = req.body;
+    const user = await usersService.updateUserStatus(userId, status);
+    res.status(200).json({
+      success: true,
+      data: user
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+var changeUserRole = async (req, res, next) => {
+  try {
+    const { userId } = req.params;
+    const { role } = req.body;
+    const user = await usersService.updateUserRole(userId, role);
+    res.status(200).json({
+      success: true,
+      data: user
+    });
+  } catch (err) {
+    next(err);
+  }
+};
 var usersController = {
   getAllUsers: getAllUsers2,
-  getUser: getUser2
+  getUser: getUser2,
+  banOrUnbanUser,
+  changeUserRole
 };
 
 // src/modules/users/users.routes.ts
 var router3 = Router2();
-router3.get("/", auth_default("ADMIN" /* ADMIN */), usersController.getAllUsers);
-router3.get("/:id", auth_default("ADMIN" /* ADMIN */), usersController.getUser);
+router3.get("/", usersController.getAllUsers);
+router3.get("/:id", usersController.getUser);
+router3.patch("/:userId/status", usersController.banOrUnbanUser);
+router3.patch("/:userId/role", usersController.changeUserRole);
 var usersRouter = router3;
 
 // src/app.ts
