@@ -10,6 +10,10 @@ import { ordersRouter } from "./modules/orders/orders.routes";
 import { usersRouter } from "./modules/users/users.routes";
 
 const app = express();
+
+// 🔥 REQUIRED for production (Vercel, Render, Railway, etc.)
+app.set("trust proxy", 1);
+
 // Configure CORS to allow both production and Vercel preview deployments
 const allowedOrigins = [
   process.env.APP_URL || "http://localhost:4000",

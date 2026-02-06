@@ -57,7 +57,12 @@ export const auth = betterAuth({
       },
     },
   },
-  trustedOrigins: [process.env.APP_URL!],
+  trustedOrigins: [
+    process.env.APP_URL!,
+    "https://medi-store-frontend-chi.vercel.app",
+    "https://medi-store-backend-delta.vercel.app",
+    "http://localhost:3000",
+  ],
   emailAndPassword: {
     enabled: true,
     autoSignIn: false,

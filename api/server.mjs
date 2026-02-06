@@ -299,7 +299,12 @@ var auth = betterAuth({
       }
     }
   },
-  trustedOrigins: [process.env.APP_URL],
+  trustedOrigins: [
+    process.env.APP_URL,
+    "https://medi-store-frontend-chi.vercel.app",
+    "https://medi-store-backend-delta.vercel.app",
+    "http://localhost:3000"
+  ],
   emailAndPassword: {
     enabled: true,
     autoSignIn: false,
@@ -1267,6 +1272,7 @@ var usersRouter = router3;
 
 // src/app.ts
 var app = express2();
+app.set("trust proxy", 1);
 var allowedOrigins = [
   process.env.APP_URL || "http://localhost:4000",
   process.env.PROD_APP_URL,
