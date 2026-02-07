@@ -18,6 +18,11 @@ export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql", // or "mysql", "postgresql", ...etc
   }),
+  cookies: {
+    secure: true,
+    sameSite: "none",
+  },
+  trustedOrigins: ["https://medi-store-frontend-chi.vercel.app"],
   session: {
     cookieCache: {
       enabled: true,
@@ -54,12 +59,11 @@ export const auth = betterAuth({
       },
     },
   },
-  trustedOrigins: [
-    process.env.APP_URL!,
-    "https://medi-store-frontend-chi.vercel.app",
-    "https://medi-store-backend-delta.vercel.app",
-    "http://localhost:3000",
-  ],
+  // trustedOrigins: [
+  //   process.env.APP_URL!,
+  //   "https://medi-store-frontend-chi.vercel.app",
+  //   "http://localhost:3000",
+  // ],
   emailAndPassword: {
     enabled: true,
     autoSignIn: false,
