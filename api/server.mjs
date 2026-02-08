@@ -255,27 +255,47 @@ var transporter = nodemailer.createTransport({
   }
 });
 var auth = betterAuth({
+  baseURL: process.env.BETTER_AUTH_URL || "http://localhost:5000",
   database: prismaAdapter(prisma, {
     provider: "postgresql"
     // or "mysql", "postgresql", ...etc
   }),
+  trustedOrigins: async (request) => {
+    const origin = request?.headers.get("origin");
+    const allowedOrigins2 = [
+      process.env.APP_URL,
+      process.env.BETTER_AUTH_URL,
+      "http://localhost:3000",
+      "http://localhost:4000",
+      "http://localhost:5000",
+      "https://medi-store-frontend-chi.vercel.app"
+    ].filter(Boolean);
+    if (!origin || allowedOrigins2.includes(origin) || /^https:\/\/.*\.vercel\.app$/.test(origin)) {
+      return [origin];
+    }
+    return [];
+  },
+  basePath: "/api/auth",
+  cookies: {
+    secure: true,
+    sameSite: "none"
+  },
+  // trustedOrigins: ["https://medi-store-frontend-chi.vercel.app"],
   session: {
     cookieCache: {
       enabled: true,
       maxAge: 5 * 60
       // 5 minutes
-    },
-    cookie: {
-      secure: true,
-      sameSite: "none",
-      httpOnly: true,
-      path: "/"
     }
   },
   advanced: {
     cookiePrefix: "better-auth",
-    useSecureCookies: true,
-    disableCSRFCheck: false
+    useSecureCookies: process.env.NODE_ENV === "production",
+    crossSubDomainCookies: {
+      enabled: false
+    },
+    disableCSRFCheck: true
+    // Allow requests without Origin header (Postman, mobile apps, etc.)
   },
   user: {
     additionalFields: {
@@ -295,12 +315,11 @@ var auth = betterAuth({
       }
     }
   },
-  trustedOrigins: [
-    process.env.APP_URL,
-    "https://medi-store-frontend-chi.vercel.app",
-    "https://medi-store-backend-delta.vercel.app",
-    "http://localhost:3000"
-  ],
+  // trustedOrigins: [
+  //   process.env.APP_URL!,
+  //   "https://medi-store-frontend-chi.vercel.app",
+  //   "http://localhost:3000",
+  // ],
   emailAndPassword: {
     enabled: true,
     autoSignIn: false,
@@ -1270,29 +1289,21 @@ var usersRouter = router3;
 var app = express2();
 app.set("trust proxy", 1);
 var allowedOrigins = [
-  process.env.APP_URL || "http://localhost:4000",
-  process.env.PROD_APP_URL,
-  // Production frontend URL
   "http://localhost:3000",
   "http://localhost:4000",
-  "http://localhost:5000",
   "https://medi-store-frontend-chi.vercel.app"
-].filter(Boolean);
+];
 app.use(
   cors({
     origin: (origin, callback) => {
       if (!origin) return callback(null, true);
-      const isAllowed = allowedOrigins.includes(origin) || /^https:\/\/next-blog-client.*\.vercel\.app$/.test(origin) || /^https:\/\/.*\.vercel\.app$/.test(origin);
-      if (isAllowed) {
-        callback(null, true);
-      } else {
-        callback(new Error(`Origin ${origin} not allowed by CORS`));
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, origin);
       }
+      callback(new Error(`Origin ${origin} not allowed by CORS`));
     },
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
-    exposedHeaders: ["Set-Cookie"]
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"]
   })
 );
 app.use(express2.json());

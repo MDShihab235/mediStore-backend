@@ -15,30 +15,52 @@ const transporter = nodemailer.createTransport({
 });
 
 export const auth = betterAuth({
+  baseURL: process.env.BETTER_AUTH_URL || "http://localhost:5000",
   database: prismaAdapter(prisma, {
     provider: "postgresql", // or "mysql", "postgresql", ...etc
   }),
+  trustedOrigins: async (request) => {
+    const origin = request?.headers.get("origin");
+
+    const allowedOrigins = [
+      process.env.APP_URL,
+      process.env.BETTER_AUTH_URL,
+      "http://localhost:3000",
+      "http://localhost:4000",
+      "http://localhost:5000",
+      "https://medi-store-frontend-chi.vercel.app",
+    ].filter(Boolean);
+
+    // Check if origin matches allowed origins or Vercel pattern
+    if (
+      !origin ||
+      allowedOrigins.includes(origin) ||
+      /^https:\/\/.*\.vercel\.app$/.test(origin)
+    ) {
+      return [origin];
+    }
+
+    return [];
+  },
+  basePath: "/api/auth",
   cookies: {
     secure: true,
     sameSite: "none",
   },
-  trustedOrigins: ["https://medi-store-frontend-chi.vercel.app"],
+  // trustedOrigins: ["https://medi-store-frontend-chi.vercel.app"],
   session: {
     cookieCache: {
       enabled: true,
       maxAge: 5 * 60, // 5 minutes
     },
-    cookie: {
-      secure: true,
-      sameSite: "none",
-      httpOnly: true,
-      path: "/",
-    },
   },
   advanced: {
     cookiePrefix: "better-auth",
-    useSecureCookies: true,
-    disableCSRFCheck: false,
+    useSecureCookies: process.env.NODE_ENV === "production",
+    crossSubDomainCookies: {
+      enabled: false,
+    },
+    disableCSRFCheck: true, // Allow requests without Origin header (Postman, mobile apps, etc.)
   },
 
   user: {
