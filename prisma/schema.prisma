@@ -51,6 +51,8 @@ model Order {
   userId      String
   user        User        @relation(fields: [userId], references: id)
   status      OrderStatus @default(PENDING)
+  paymentType  PaymentType
+  shippingAddress String
   totalAmount Decimal     @db.Decimal(10, 2)
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
@@ -60,6 +62,11 @@ model Order {
   @@index([userId])
   @@map("orders")
 }
+
+enum PaymentType {
+  CASH_ON_DELIVERY
+}
+
 
 model OrderItem {
   id         String  @id @default(uuid())
@@ -75,6 +82,8 @@ model OrderItem {
   @@index([medicineId])
   @@map("order_items")
 }
+
+
 
 enum OrderStatus {
   PENDING

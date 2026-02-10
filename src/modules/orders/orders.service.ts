@@ -4,12 +4,22 @@ interface OrderItemInput {
   medicineId: string;
   quantity: number;
 }
+// interface CartItemInput {
+//   medicineId: string;
+//   quantity: number;
+// }
 
-const createOrder = async (userId: string, items: OrderItemInput[]) => {
+const createOrder = async (
+  userId: string,
+  items: OrderItemInput[],
+  shippingAddress: string,
+) => {
   if (!items || items.length === 0) {
     throw new Error("Order items are required");
   }
-
+  if (!shippingAddress) {
+    throw new Error("Shipping address is required");
+  }
   return await prisma.$transaction(async (tx) => {
     let totalAmount = 0;
 
@@ -46,9 +56,9 @@ const createOrder = async (userId: string, items: OrderItemInput[]) => {
       data: {
         userId,
         totalAmount,
-        items: {
-          create: orderItemsData,
-        },
+        paymentType: "CASH_ON_DELIVERY",
+        shippingAddress,
+        items: { create: orderItemsData },
       },
       include: {
         items: true,
@@ -185,9 +195,123 @@ const getSellerOrders = async (sellerId: string) => {
 
   return orders;
 };
+
+const getMedicineStock = async (medicineId: string) => {
+  const stock = await prisma.medicine.findUnique({
+    where: { id: medicineId },
+    select: { stock: true },
+  });
+  return stock;
+};
+
+const validateCartStock = async (items: OrderItemInput[]) => {
+  if (!items || items.length === 0) {
+    throw new Error("Cart items are required");
+  }
+
+  const medicineIds = items.map((i) => i.medicineId);
+
+  const medicines = await prisma.medicine.findMany({
+    where: { id: { in: medicineIds } },
+    select: {
+      id: true,
+      name: true,
+      stock: true,
+    },
+  });
+
+  const errors = [];
+
+  for (const item of items) {
+    const medicine = medicines.find((m) => m.id === item.medicineId);
+
+    if (!medicine) {
+      errors.push({
+        medicineId: item.medicineId,
+        message: "Medicine not found",
+      });
+      continue;
+    }
+
+    if (medicine.stock === 0) {
+      errors.push({
+        medicineId: medicine.id,
+        message: "Stock not available",
+        availableStock: 0,
+      });
+      continue;
+    }
+
+    if (item.quantity > medicine.stock) {
+      errors.push({
+        medicineId: medicine.id,
+        message: "Insufficient stock",
+        availableStock: medicine.stock,
+      });
+    }
+  }
+
+  if (errors.length > 0) {
+    return { valid: false, errors };
+  }
+
+  return { valid: true };
+};
+
+const cancelOrder = async (orderId: string, userId: string) => {
+  if (!orderId) {
+    throw new Error("Order ID is required");
+  }
+
+  return await prisma.$transaction(async (tx) => {
+    const order = await tx.order.findFirst({
+      where: {
+        id: orderId,
+        userId, // 🔐 ownership check
+      },
+      include: {
+        items: true,
+      },
+    });
+
+    if (!order) {
+      throw new Error("Order not found or access denied");
+    }
+
+    if (order.status !== "PENDING") {
+      throw new Error("Only pending orders can be cancelled");
+    }
+
+    // 🔄 Restore stock
+    for (const item of order.items) {
+      await tx.medicine.update({
+        where: { id: item.medicineId },
+        data: {
+          stock: {
+            increment: item.quantity,
+          },
+        },
+      });
+    }
+
+    // ❌ Cancel order
+    const cancelledOrder = await tx.order.update({
+      where: { id: orderId },
+      data: {
+        status: "CANCELLED",
+      },
+    });
+
+    return cancelledOrder;
+  });
+};
+
 export const orderService = {
   createOrder,
   getUsersOrder,
   getSingleOrderDetails,
   getSellerOrders,
+  getMedicineStock,
+  validateCartStock,
+  cancelOrder,
 };

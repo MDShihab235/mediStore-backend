@@ -17,7 +17,7 @@ router.get(
 
 router.get(
   "/order/:id",
-  auth(UserRole.SELLER, UserRole.ADMIN),
+  auth(UserRole.SELLER, UserRole.ADMIN, UserRole.CUSTOMER),
   orderController.getSingleOrderDetails,
 );
 router.get(
@@ -25,4 +25,17 @@ router.get(
   auth(UserRole.SELLER, UserRole.ADMIN),
   orderController.getSellerOrders,
 );
+router.get("/:medicineId/stock", orderController.getMedicineStock);
+
+router.post(
+  "/cart/validate",
+  auth(UserRole.CUSTOMER, UserRole.SELLER, UserRole.ADMIN),
+  orderController.validateCart,
+);
+router.patch(
+  "/order/:id/cancel",
+  auth(UserRole.CUSTOMER, UserRole.SELLER, UserRole.ADMIN),
+  orderController.cancelOrder,
+);
+
 export const ordersRouter = router;

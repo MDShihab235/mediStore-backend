@@ -4,7 +4,7 @@ import { orderService } from "./orders.service";
 const createOrder = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.user?.id; // from auth middleware
-    const { items } = req.body;
+    const { items, shippingAddress } = req.body;
 
     if (!userId) {
       return res.status(401).json({
@@ -13,7 +13,11 @@ const createOrder = async (req: Request, res: Response, next: NextFunction) => {
       });
     }
 
-    const order = await orderService.createOrder(userId, items);
+    const order = await orderService.createOrder(
+      userId,
+      items,
+      shippingAddress,
+    );
 
     res.status(201).json({
       success: true,
@@ -83,7 +87,7 @@ const getSingleOrderDetails = async (
   }
 };
 
-export const getSellerOrders = async (
+const getSellerOrders = async (
   req: Request,
   res: Response,
   next: NextFunction,
@@ -118,9 +122,74 @@ export const getSellerOrders = async (
     next(err);
   }
 };
+
+// GET /api/medicines/:id/stock
+const getMedicineStock = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { id } = req.params;
+
+    const medicine = await orderService.getMedicineStock(id as string);
+
+    if (!medicine) {
+      return res.status(404).json({ message: "Medicine not found" });
+    }
+
+    res.json({ stock: medicine.stock });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const validateCart = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { items } = req.body;
+
+    const result = await orderService.validateCartStock(items);
+
+    res.status(200).json(result);
+  } catch (err) {
+    next(err);
+  }
+};
+
+const cancelOrder = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const userId = req.user?.id;
+    const { id: orderId } = req.params;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+
+    const order = await orderService.cancelOrder(orderId as string, userId);
+
+    res.status(200).json({
+      success: true,
+      message: "Order cancelled successfully",
+      data: order,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 export const orderController = {
   createOrder,
   getUsersOrder,
   getSingleOrderDetails,
   getSellerOrders,
+  getMedicineStock,
+  validateCart,
+  cancelOrder,
 };
