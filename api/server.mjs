@@ -1304,11 +1304,7 @@ router2.get(
   auth_default("CUSTOMER" /* CUSTOMER */, "SELLER" /* SELLER */, "ADMIN" /* ADMIN */),
   orderController.getUsersOrder
 );
-router2.get(
-  "/order/:id",
-  auth_default("SELLER" /* SELLER */, "ADMIN" /* ADMIN */, "CUSTOMER" /* CUSTOMER */),
-  orderController.getSingleOrderDetails
-);
+router2.get("/order/:id", orderController.getSingleOrderDetails);
 router2.get(
   "/seller/orders",
   auth_default("SELLER" /* SELLER */, "ADMIN" /* ADMIN */),
@@ -1316,11 +1312,7 @@ router2.get(
 );
 router2.get("/:medicineId/stock", orderController.getMedicineStock);
 router2.post("/cart/validate", orderController.validateCart);
-router2.patch(
-  "/order/:id/cancel",
-  auth_default("CUSTOMER" /* CUSTOMER */, "SELLER" /* SELLER */, "ADMIN" /* ADMIN */),
-  orderController.cancelOrder
-);
+router2.patch("/order/:id/cancel", orderController.cancelOrder);
 var ordersRouter = router2;
 
 // src/modules/users/users.routes.ts
