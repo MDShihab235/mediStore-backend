@@ -1304,7 +1304,11 @@ router2.get(
   auth_default("CUSTOMER" /* CUSTOMER */, "SELLER" /* SELLER */, "ADMIN" /* ADMIN */),
   orderController.getUsersOrder
 );
-router2.get("/order/:id", orderController.getSingleOrderDetails);
+router2.get(
+  "/order/:id",
+  auth_default("CUSTOMER" /* CUSTOMER */, "SELLER" /* SELLER */, "ADMIN" /* ADMIN */),
+  orderController.getSingleOrderDetails
+);
 router2.get(
   "/seller/orders",
   auth_default("SELLER" /* SELLER */, "ADMIN" /* ADMIN */),

@@ -27,7 +27,11 @@ router.get(
 );
 router.get("/:medicineId/stock", orderController.getMedicineStock);
 
-router.post("/cart/validate", orderController.validateCart);
+router.post(
+  "/cart/validate",
+  auth(UserRole.CUSTOMER, UserRole.SELLER, UserRole.ADMIN),
+  orderController.validateCart,
+);
 router.patch("/order/:id/cancel", orderController.cancelOrder);
 
 export const ordersRouter = router;
