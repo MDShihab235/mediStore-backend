@@ -262,25 +262,15 @@ var auth = betterAuth({
     provider: "postgresql"
     // or "mysql", "postgresql", ...etc
   }),
-  trustedOrigins: async (request) => {
-    const origin = request?.headers.get("origin");
-    const allowedOrigins2 = [
-      process.env.APP_URL,
-      process.env.BETTER_AUTH_URL,
-      "http://localhost:3000",
-      "http://localhost:4000",
-      "http://localhost:5000",
-      "https://medi-store-frontend-chi.vercel.app"
-    ].filter(Boolean);
-    if (!origin || allowedOrigins2.includes(origin) || /^https:\/\/.*\.vercel\.app$/.test(origin)) {
-      return [origin];
-    }
-    return [];
-  },
+  trustedOrigins: [
+    "http://localhost:3000",
+    "https://medi-store-frontend-chi.vercel.app"
+  ],
   basePath: "/api/auth",
   cookies: {
     secure: true,
-    sameSite: "none"
+    sameSite: "none",
+    httpOnly: true
   },
   // trustedOrigins: ["https://medi-store-frontend-chi.vercel.app"],
   session: {
@@ -1448,18 +1438,11 @@ var app = express2();
 app.set("trust proxy", 1);
 var allowedOrigins = [
   "http://localhost:3000",
-  "http://localhost:4000",
   "https://medi-store-frontend-chi.vercel.app"
 ];
 app.use(
   cors({
-    origin: (origin, callback) => {
-      if (!origin) return callback(null, true);
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, origin);
-      }
-      callback(new Error(`Origin ${origin} not allowed by CORS`));
-    },
+    origin: allowedOrigins,
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"]
   })
