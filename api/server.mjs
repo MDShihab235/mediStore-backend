@@ -1315,11 +1315,7 @@ router2.get(
   orderController.getSellerOrders
 );
 router2.get("/:medicineId/stock", orderController.getMedicineStock);
-router2.post(
-  "/cart/validate",
-  auth_default("CUSTOMER" /* CUSTOMER */, "SELLER" /* SELLER */, "ADMIN" /* ADMIN */),
-  orderController.validateCart
-);
+router2.post("/cart/validate", orderController.validateCart);
 router2.patch(
   "/order/:id/cancel",
   auth_default("CUSTOMER" /* CUSTOMER */, "SELLER" /* SELLER */, "ADMIN" /* ADMIN */),
