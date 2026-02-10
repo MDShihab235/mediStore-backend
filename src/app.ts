@@ -17,26 +17,16 @@ app.set("trust proxy", 1);
 // Configure CORS to allow both production and Vercel preview deployments
 const allowedOrigins = [
   "http://localhost:3000",
-  "http://localhost:4000",
   "https://medi-store-frontend-chi.vercel.app",
 ];
 
 app.use(
   cors({
-    origin: (origin, callback) => {
-      if (!origin) return callback(null, true);
-
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, origin); // 👈 IMPORTANT
-      }
-
-      callback(new Error(`Origin ${origin} not allowed by CORS`));
-    },
+    origin: allowedOrigins,
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   }),
 );
-
 app.use(express.json());
 app.all("/api/auth/*splat", toNodeHandler(auth));
 
