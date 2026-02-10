@@ -24,10 +24,21 @@ export const auth = betterAuth({
     "https://medi-store-frontend-chi.vercel.app",
   ],
   basePath: "/api/auth",
+  // cookies: {
+  //   secure: true,
+  //   sameSite: "none",
+  //   httpOnly: true,
+  // },
   cookies: {
-    secure: true,
-    sameSite: "none",
-    httpOnly: true,
+    session: {
+      name: "better-auth.session_token",
+      options: {
+        httpOnly: true,
+        secure: true, // 🔥 REQUIRED on Vercel
+        sameSite: "none", // 🔥 REQUIRED for cross-domain
+        path: "/",
+      },
+    },
   },
   // trustedOrigins: ["https://medi-store-frontend-chi.vercel.app"],
   session: {
