@@ -9,17 +9,7 @@ router.post(
   auth(UserRole.CUSTOMER, UserRole.SELLER, UserRole.ADMIN),
   orderController.createOrder,
 );
-router.get(
-  "/:userId",
-  auth(UserRole.CUSTOMER, UserRole.SELLER, UserRole.ADMIN),
-  orderController.getUsersOrder,
-);
 
-router.get(
-  "/order/:id",
-  auth(UserRole.CUSTOMER, UserRole.SELLER, UserRole.ADMIN),
-  orderController.getSingleOrderDetails,
-);
 router.get(
   "/seller/orders",
   auth(UserRole.CUSTOMER, UserRole.SELLER, UserRole.ADMIN),
@@ -38,4 +28,14 @@ router.patch(
   orderController.cancelOrder,
 );
 
+router.get(
+  "/:userId",
+  auth(UserRole.CUSTOMER, UserRole.SELLER, UserRole.ADMIN),
+  orderController.getUsersOrder,
+);
+router.get(
+  "/order/:id",
+  auth(UserRole.CUSTOMER, UserRole.SELLER, UserRole.ADMIN),
+  orderController.getSingleOrderDetails,
+);
 export const ordersRouter = router;

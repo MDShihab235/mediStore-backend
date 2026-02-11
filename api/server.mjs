@@ -1324,7 +1324,7 @@ router2.get(
 );
 router2.get(
   "/seller/orders",
-  auth_default("SELLER" /* SELLER */, "ADMIN" /* ADMIN */),
+  auth_default("CUSTOMER" /* CUSTOMER */, "SELLER" /* SELLER */, "ADMIN" /* ADMIN */),
   orderController.getSellerOrders
 );
 router2.get("/:medicineId/stock", orderController.getMedicineStock);
@@ -1333,7 +1333,11 @@ router2.post(
   auth_default("CUSTOMER" /* CUSTOMER */, "SELLER" /* SELLER */, "ADMIN" /* ADMIN */),
   orderController.validateCart
 );
-router2.patch("/order/:id/cancel", orderController.cancelOrder);
+router2.patch(
+  "/order/:id/cancel",
+  auth_default("CUSTOMER" /* CUSTOMER */, "SELLER" /* SELLER */, "ADMIN" /* ADMIN */),
+  orderController.cancelOrder
+);
 var ordersRouter = router2;
 
 // src/modules/users/users.routes.ts
