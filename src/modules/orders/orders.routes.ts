@@ -4,7 +4,11 @@ import auth, { UserRole } from "../../middlewares/auth";
 
 const router = Router();
 
-router.post("/", orderController.createOrder);
+router.post(
+  "/",
+  auth(UserRole.CUSTOMER, UserRole.SELLER, UserRole.ADMIN),
+  orderController.createOrder,
+);
 
 router.get(
   "/seller/orders",
@@ -13,8 +17,16 @@ router.get(
 );
 router.get("/:medicineId/stock", orderController.getMedicineStock);
 
-router.post("/cart/validate", orderController.validateCart);
-router.patch("/order/:id/cancel", orderController.cancelOrder);
+router.post(
+  "/cart/validate",
+  auth(UserRole.CUSTOMER, UserRole.SELLER, UserRole.ADMIN),
+  orderController.validateCart,
+);
+router.patch(
+  "/order/:id/cancel",
+  auth(UserRole.CUSTOMER, UserRole.SELLER, UserRole.ADMIN),
+  orderController.cancelOrder,
+);
 
 router.get(
   "/:userId",
