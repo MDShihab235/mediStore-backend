@@ -24,16 +24,12 @@ export const auth = betterAuth({
     "https://medi-store-frontend-chi.vercel.app",
   ],
   basePath: "/api/auth",
+
   cookies: {
-    secure: process.env.NODE_ENV === "production",
-    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    secure: true,
+    sameSite: "none",
     httpOnly: true,
   },
-  // cookies: {
-  //   secure: true,
-  //   sameSite: "none",
-  //   httpOnly: true,
-  // },
   // cookies: {
   //   session: {
   //     name: "better-auth.session_token",
