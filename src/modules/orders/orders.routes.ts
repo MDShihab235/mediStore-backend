@@ -22,7 +22,7 @@ router.get(
 );
 router.get(
   "/seller/orders",
-  auth(UserRole.SELLER, UserRole.ADMIN),
+  auth(UserRole.CUSTOMER, UserRole.SELLER, UserRole.ADMIN),
   orderController.getSellerOrders,
 );
 router.get("/:medicineId/stock", orderController.getMedicineStock);
@@ -32,6 +32,10 @@ router.post(
   auth(UserRole.CUSTOMER, UserRole.SELLER, UserRole.ADMIN),
   orderController.validateCart,
 );
-router.patch("/order/:id/cancel", orderController.cancelOrder);
+router.patch(
+  "/order/:id/cancel",
+  auth(UserRole.CUSTOMER, UserRole.SELLER, UserRole.ADMIN),
+  orderController.cancelOrder,
+);
 
 export const ordersRouter = router;

@@ -267,10 +267,23 @@ var auth = betterAuth({
     "https://medi-store-frontend-chi.vercel.app"
   ],
   basePath: "/api/auth",
+  // cookies: {
+  //   secure: true,
+  //   sameSite: "none",
+  //   httpOnly: true,
+  // },
   cookies: {
-    secure: true,
-    sameSite: "none",
-    httpOnly: true
+    session: {
+      name: "better-auth.session_token",
+      options: {
+        httpOnly: true,
+        secure: true,
+        // 🔥 REQUIRED on Vercel
+        sameSite: "none",
+        // 🔥 REQUIRED for cross-domain
+        path: "/"
+      }
+    }
   },
   // trustedOrigins: ["https://medi-store-frontend-chi.vercel.app"],
   session: {
@@ -1315,7 +1328,11 @@ router2.get(
   orderController.getSellerOrders
 );
 router2.get("/:medicineId/stock", orderController.getMedicineStock);
-router2.post("/cart/validate", orderController.validateCart);
+router2.post(
+  "/cart/validate",
+  auth_default("CUSTOMER" /* CUSTOMER */, "SELLER" /* SELLER */, "ADMIN" /* ADMIN */),
+  orderController.validateCart
+);
 router2.patch("/order/:id/cancel", orderController.cancelOrder);
 var ordersRouter = router2;
 
