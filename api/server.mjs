@@ -267,24 +267,22 @@ var auth = betterAuth({
     "https://medi-store-frontend-chi.vercel.app"
   ],
   basePath: "/api/auth",
-  // cookies: {
-  //   secure: true,
-  //   sameSite: "none",
-  //   httpOnly: true,
-  // },
   cookies: {
-    session: {
-      name: "better-auth.session_token",
-      options: {
-        httpOnly: true,
-        secure: true,
-        // 🔥 REQUIRED on Vercel
-        sameSite: "none",
-        // 🔥 REQUIRED for cross-domain
-        path: "/"
-      }
-    }
+    secure: true,
+    sameSite: "none",
+    httpOnly: true
   },
+  // cookies: {
+  //   session: {
+  //     name: "better-auth.session_token",
+  //     options: {
+  //       httpOnly: true,
+  //       secure: true, // 🔥 REQUIRED on Vercel
+  //       sameSite: "none", // 🔥 REQUIRED for cross-domain
+  //       path: "/",
+  //     },
+  //   },
+  // },
   // trustedOrigins: ["https://medi-store-frontend-chi.vercel.app"],
   session: {
     cookieCache: {
@@ -671,6 +669,7 @@ var auth2 = (...roles) => {
       const session = await auth.api.getSession({
         headers: req.headers
       });
+      console.log(session);
       if (!session) {
         return res.status(401).json({
           success: false,
@@ -1313,16 +1312,6 @@ router2.post(
   orderController.createOrder
 );
 router2.get(
-  "/:userId",
-  auth_default("CUSTOMER" /* CUSTOMER */, "SELLER" /* SELLER */, "ADMIN" /* ADMIN */),
-  orderController.getUsersOrder
-);
-router2.get(
-  "/order/:id",
-  auth_default("CUSTOMER" /* CUSTOMER */, "SELLER" /* SELLER */, "ADMIN" /* ADMIN */),
-  orderController.getSingleOrderDetails
-);
-router2.get(
   "/seller/orders",
   auth_default("CUSTOMER" /* CUSTOMER */, "SELLER" /* SELLER */, "ADMIN" /* ADMIN */),
   orderController.getSellerOrders
@@ -1337,6 +1326,16 @@ router2.patch(
   "/order/:id/cancel",
   auth_default("CUSTOMER" /* CUSTOMER */, "SELLER" /* SELLER */, "ADMIN" /* ADMIN */),
   orderController.cancelOrder
+);
+router2.get(
+  "/:userId",
+  auth_default("CUSTOMER" /* CUSTOMER */, "SELLER" /* SELLER */, "ADMIN" /* ADMIN */),
+  orderController.getUsersOrder
+);
+router2.get(
+  "/order/:id",
+  auth_default("CUSTOMER" /* CUSTOMER */, "SELLER" /* SELLER */, "ADMIN" /* ADMIN */),
+  orderController.getSingleOrderDetails
 );
 var ordersRouter = router2;
 
