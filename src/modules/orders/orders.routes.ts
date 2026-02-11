@@ -14,11 +14,7 @@ router.get(
 router.get("/:medicineId/stock", orderController.getMedicineStock);
 
 router.post("/cart/validate", orderController.validateCart);
-router.patch(
-  "/order/:id/cancel",
-  auth(UserRole.CUSTOMER, UserRole.SELLER, UserRole.ADMIN),
-  orderController.cancelOrder,
-);
+router.patch("/order/:id/cancel", orderController.cancelOrder);
 
 router.get(
   "/:userId",
