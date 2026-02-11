@@ -104,10 +104,10 @@ const getSellerOrders = async (
     }
 
     // Optional but recommended
-    if (role !== "SELLER") {
+    if (role !== "SELLER" && role !== "ADMIN") {
       return res.status(403).json({
         success: false,
-        message: "Access denied. Seller only.",
+        message: "Access denied. Seller and Admin only.",
       });
     }
 
@@ -115,7 +115,7 @@ const getSellerOrders = async (
 
     res.status(200).json({
       success: true,
-      message: "Seller orders fetched successfully",
+      message: "all orders fetched successfully",
       data: orders,
     });
   } catch (err) {

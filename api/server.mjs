@@ -1306,15 +1306,27 @@ var orderController = {
 
 // src/modules/orders/orders.routes.ts
 var router2 = Router();
-router2.post("/", orderController.createOrder);
+router2.post(
+  "/",
+  auth_default("CUSTOMER" /* CUSTOMER */, "SELLER" /* SELLER */, "ADMIN" /* ADMIN */),
+  orderController.createOrder
+);
 router2.get(
   "/seller/orders",
   auth_default("CUSTOMER" /* CUSTOMER */, "SELLER" /* SELLER */, "ADMIN" /* ADMIN */),
   orderController.getSellerOrders
 );
 router2.get("/:medicineId/stock", orderController.getMedicineStock);
-router2.post("/cart/validate", orderController.validateCart);
-router2.patch("/order/:id/cancel", orderController.cancelOrder);
+router2.post(
+  "/cart/validate",
+  auth_default("CUSTOMER" /* CUSTOMER */, "SELLER" /* SELLER */, "ADMIN" /* ADMIN */),
+  orderController.validateCart
+);
+router2.patch(
+  "/order/:id/cancel",
+  auth_default("CUSTOMER" /* CUSTOMER */, "SELLER" /* SELLER */, "ADMIN" /* ADMIN */),
+  orderController.cancelOrder
+);
 router2.get(
   "/:userId",
   auth_default("CUSTOMER" /* CUSTOMER */, "SELLER" /* SELLER */, "ADMIN" /* ADMIN */),
